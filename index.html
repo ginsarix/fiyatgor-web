@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="tr">
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="icon" type="image/png" href="/favicon.png" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="/src/style.css" />
+        <title>Fiyat Gör</title>
+    </head>
+    <body
+        class="min-h-screen flex flex-col items-center justify-center relative overflow-hidden transition-colors"
+        style="background-color: #6b7db3"
+    >
+        <!-- Particle canvas -->
+        <canvas
+            id="particles"
+            class="absolute inset-0 w-full h-full pointer-events-none"
+        ></canvas>
+
+        <!-- Bottom wave -->
+        <div class="absolute bottom-0 left-0 w-full pointer-events-none">
+            <svg
+                viewBox="0 0 1440 320"
+                xmlns="http://www.w3.org/2000/svg"
+                preserveAspectRatio="none"
+                class="w-full block"
+            >
+                <path
+                    d="M0,220 C200,320 400,120 720,200 C1040,280 1240,120 1440,220 L1440,320 L0,320 Z"
+                    fill="#d8dce8"
+                />
+            </svg>
+        </div>
+
+        <main
+            class="relative z-10 flex flex-col items-center gap-3 w-full max-w-xs -mt-30"
+        >
+            <img
+                src="/company.png"
+                alt="Şirket Logo"
+                class="h-24 object-contain"
+            />
+            <div class="bg-white rounded-xl shadow-2xl w-full px-6 py-8">
+                <input
+                    id="barcode-input"
+                    type="text"
+                    placeholder="Barkod"
+                    autofocus
+                    autocomplete="off"
+                    class="w-full border border-gray-300 rounded-lg py-3 px-4 text-center text-lg text-gray-800 placeholder-gray-400 outline-none focus:border-gray-500 transition-colors duration-200"
+                />
+                <div
+                    id="result-wrapper"
+                    class="grid transition-[grid-template-rows] duration-300 ease-in-out"
+                    style="grid-template-rows: 0fr"
+                >
+                    <div class="overflow-hidden">
+                        <div
+                            class="mt-4 grid text-2xl"
+                            style="grid-template-areas: &quot;stack&quot;"
+                        >
+                            <div
+                                id="loader-container"
+                                class="[grid-area:stack] flex items-center justify-center transition-all duration-300 ease-in-out opacity-0 scale-90 pointer-events-none"
+                            >
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="24"
+                                    height="24"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    class="animate-spin text-blue-500"
+                                >
+                                    <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+                                </svg>
+                            </div>
+
+                            <div
+                                id="product-content"
+                                class="[grid-area:stack] flex flex-col text-center transition-all duration-300 ease-in-out opacity-0 scale-90 pointer-events-none"
+                            >
+                                <span
+                                    id="product-name"
+                                    class="font-medium text-gray-800"
+                                ></span>
+                                <span
+                                    id="product-price"
+                                    class="font-extrabold text-gray-800"
+                                ></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <audio
+                    id="success-audio"
+                    src="/audio/success.mp3"
+                    preload="auto"
+                ></audio>
+                <audio
+                    id="error-audio"
+                    src="/audio/error.mp3"
+                    preload="auto"
+                ></audio>
+            </div>
+        </main>
+
+        <footer class="absolute bottom-4 text-center text-xs space-y-1 z-10">
+            <div>
+                <a
+                    href="https://admin.fiyatgor.panunet.com.tr"
+                    class="text-[#405189] hover:text-white transition-colors"
+                    >Yönetim</a
+                >
+            </div>
+            <div>2026 PanuNet Fiyat Gör · by Panu Teknoloji</div>
+        </footer>
+
+        <script type="module" src="/src/main.ts"></script>
+    </body>
+</html>
