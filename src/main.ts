@@ -66,10 +66,8 @@ function formatPrice(price: number): string {
 }
 
 async function onBarcode(
-  e: Event,
+  value: string,
 ): Promise<ProductResponse["product"] | string | null> {
-  const value = (e.target as HTMLInputElement).value;
-
   if (value !== prevBarcode) {
     prevBarcode = value;
 
@@ -128,57 +126,52 @@ document.addEventListener("DOMContentLoaded", () => {
   resultWrapper = document.getElementById("result-wrapper") as HTMLDivElement;
 
   let timerId: number | undefined;
-  let debounceId: number | undefined;
 
-  barcodeInput.addEventListener("input", (e) => {
-    if (debounceId) clearTimeout(debounceId);
+  document.addEventListener("keypress", async (e) => {
+    if (e.key !== "Enter") return;
 
-    debounceId = setTimeout(async () => {
-      debounceId = undefined;
+    const value = barcodeInput.value;
+    barcodeInput.value = "";
+    const response = await onBarcode(value);
+    const scheduleClear = (delay: number) => {
       if (timerId) clearTimeout(timerId);
+      timerId = setTimeout(() => {
+        productContent?.classList.remove("opacity-100", "scale-100");
+        productContent?.classList.add(
+          "opacity-0",
+          "scale-90",
+          "pointer-events-none",
+        );
+        if (resultWrapper) resultWrapper.style.gridTemplateRows = "0fr";
 
-      const response = await onBarcode(e);
-      const scheduleClear = (delay: number) => {
-        timerId = setTimeout(() => {
-          productContent?.classList.remove("opacity-100", "scale-100");
-          productContent?.classList.add(
-            "opacity-0",
-            "scale-90",
-            "pointer-events-none",
-          );
-          if (resultWrapper) resultWrapper.style.gridTemplateRows = "0fr";
-
-          const clearOnTransitionEnd = () => {
-            nameSpan.textContent = "";
-            priceSpan.textContent = "";
-            productContent?.removeEventListener(
-              "transitionend",
-              clearOnTransitionEnd,
-            );
-          };
-          productContent?.addEventListener(
+        const clearOnTransitionEnd = () => {
+          nameSpan.textContent = "";
+          priceSpan.textContent = "";
+          productContent?.removeEventListener(
             "transitionend",
             clearOnTransitionEnd,
           );
+        };
+        productContent?.addEventListener("transitionend", clearOnTransitionEnd);
 
-          timerId = undefined;
-        }, delay);
-      };
+        prevBarcode = null;
+        timerId = undefined;
+      }, delay);
+    };
 
-      if (response && typeof response === "object") {
-        nameSpan.textContent = response.name;
-        priceSpan.textContent = `${formatPrice(Number(response.price))} ${response.currency}`;
-        successAudio.currentTime = 0;
-        successAudio.play();
-        scheduleClear(30_000);
-      } else if (response && typeof response === "string") {
-        nameSpan.textContent = response;
-        priceSpan.textContent = "";
-        errorAudio.currentTime = 0;
-        errorAudio.play();
-        scheduleClear(3_000);
-      }
-    }, 300);
+    if (response && typeof response === "object") {
+      nameSpan.textContent = response.name;
+      priceSpan.textContent = `${formatPrice(Number(response.price))} ${response.currency}`;
+      successAudio.currentTime = 0;
+      successAudio.play();
+      scheduleClear(30_000);
+    } else if (response && typeof response === "string") {
+      nameSpan.textContent = response;
+      priceSpan.textContent = "";
+      errorAudio.currentTime = 0;
+      errorAudio.play();
+      scheduleClear(3_000);
+    }
   });
 
   window.addEventListener("pagehide", () => {
