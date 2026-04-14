@@ -8,25 +8,24 @@
         <title>Fiyat Gör</title>
     </head>
     <body
-        class="min-h-screen flex flex-col items-center justify-center relative overflow-hidden transition-colors"
-        style="background-color: #6b7db3"
+        class="min-h-dvh bg-[#6b7db3] flex flex-col items-center justify-center relative overflow-hidden transition-colors"
     >
-        <!-- Particle canvas -->
+        <!-- Parçacıklar -->
         <canvas
             id="particles"
             class="absolute inset-0 w-full h-full pointer-events-none"
         ></canvas>
 
-        <!-- Bottom wave -->
+        <!-- Dalga -->
         <div class="absolute bottom-0 left-0 w-full pointer-events-none">
             <svg
                 viewBox="0 0 1440 320"
                 xmlns="http://www.w3.org/2000/svg"
-                preserveAspectRatio="none"
-                class="w-full block"
+                class="w-360 h-80 block"
             >
+                <title>Dalga Dekorasyonu</title>
                 <path
-                    d="M0,220 C200,320 400,120 720,200 C1040,280 1240,120 1440,220 L1440,320 L0,320 Z"
+                    d="M0,180 C200,340 400,60 720,200 C1040,340 1240,60 1440,180 L1440,320 L0,320 Z"
                     fill="#d8dce8"
                 />
             </svg>
@@ -75,6 +74,7 @@
                                     stroke-linejoin="round"
                                     class="animate-spin text-blue-500"
                                 >
+                                    <title>Yükleniyor Simgesi</title>
                                     <path d="M21 12a9 9 0 1 1-6.219-8.56" />
                                 </svg>
                             </div>
@@ -106,17 +106,77 @@
                     preload="auto"
                 ></audio>
             </div>
+
+            <!-- Scanner (inline, below the card) -->
+            <div id="scanner-container" class="hidden w-full">
+                <!-- Shown before camera is active; acts as the user-gesture trigger -->
+                <button
+                    id="scanner-start"
+                    type="button"
+                    class="hidden w-full rounded-xl bg-white/15 text-white py-6 text-sm font-medium tracking-wide cursor-pointer hover:bg-white/25 active:bg-white/30 transition-colors"
+                >
+                    Kamera ile tara
+                </button>
+                <!-- Shown while camera is active -->
+                <div id="scanner-active" class="hidden">
+                    <div class="relative">
+                        <video
+                            id="scanner-video"
+                            class="w-full rounded-xl"
+                            playsinline
+                            muted
+                        ></video>
+                        <!-- Corner brackets -->
+                        <div class="absolute inset-0 pointer-events-none">
+                            <div
+                                class="absolute top-3 left-3 w-7 h-7 border-t-2 border-l-2 border-white rounded-tl-lg"
+                            ></div>
+                            <div
+                                class="absolute top-3 right-3 w-7 h-7 border-t-2 border-r-2 border-white rounded-tr-lg"
+                            ></div>
+                            <div
+                                class="absolute bottom-3 left-3 w-7 h-7 border-b-2 border-l-2 border-white rounded-bl-lg"
+                            ></div>
+                            <div
+                                class="absolute bottom-3 right-3 w-7 h-7 border-b-2 border-r-2 border-white rounded-br-lg"
+                            ></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center mt-2">
+                    <button
+                        id="scanner-close"
+                        type="button"
+                        class="hidden text-white/70 hover:text-white text-xs transition-colors cursor-pointer"
+                    >
+                        Kapat
+                    </button>
+                </div>
+            </div>
         </main>
 
         <footer class="absolute bottom-4 text-center text-xs space-y-1 z-10">
-            <div>
+            <div class="flex items-center justify-center gap-3">
                 <a
                     href="https://admin.fiyatgor.panunet.com.tr"
                     class="text-[#405189] hover:text-white transition-colors"
                     >Yönetim</a
                 >
+                <a
+                    id="scanner-trigger"
+                    href="#"
+                    class="text-[#405189] hover:text-white transition-colors"
+                    >Kamera İle Tara</a
+                >
             </div>
-            <div>2026 PanuNet Fiyat Gör · by Panu Teknoloji</div>
+            <div>
+                <span id="footer-year">
+                    <script>
+                        document.write(new Date().getFullYear());
+                    </script>
+                </span>
+                PanuNet Fiyat Gör · Panu Teknoloji
+            </div>
         </footer>
 
         <script type="module" src="/src/main.ts"></script>
