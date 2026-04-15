@@ -28,13 +28,21 @@ export async function openScanner(onScan: ScanCallback) {
       BarcodeFormat.UPC_E,
     ];
 
+    let lastBarcode = "";
+    let lastScanAt = 0;
+    const COOLDOWN_MS = 2000;
+
     activeControls = await codeReader.decodeFromVideoDevice(
       undefined,
       video,
       (result) => {
-        if (result) {
-          onScan(result.getText());
-        }
+        if (!result) return;
+        const barcode = result.getText();
+        const now = Date.now();
+        if (barcode === lastBarcode && now - lastScanAt < COOLDOWN_MS) return;
+        lastBarcode = barcode;
+        lastScanAt = now;
+        onScan(barcode);
       },
     );
 

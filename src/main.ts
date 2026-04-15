@@ -178,7 +178,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function startScanner() {
     openScanner(async (barcode) => {
-      closeScanner(); // stops camera, shows scanner-start
       prevBarcode = null;
       displayResult(await onBarcode(barcode));
     });
