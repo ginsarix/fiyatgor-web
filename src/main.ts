@@ -44,6 +44,9 @@ function formatDiscountEndsAt(value: string): string {
 document.addEventListener("DOMContentLoaded", () => {
   initParticles();
 
+  const footerYear = document.getElementById("footer-year");
+  if (footerYear) footerYear.textContent = String(new Date().getFullYear());
+
   // DOM refs
   const barcodeInput = document.getElementById(
     "barcode-input",
@@ -192,12 +195,12 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       successAudio.currentTime = 0;
-      successAudio.play();
+      successAudio.play().catch(() => {});
     } else {
       nameSpan.textContent = response;
       priceSpan.textContent = "";
       errorAudio.currentTime = 0;
-      errorAudio.play();
+      errorAudio.play().catch(() => {});
     }
 
     if (timerId) clearTimeout(timerId);
