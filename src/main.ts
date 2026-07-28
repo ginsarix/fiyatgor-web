@@ -13,7 +13,16 @@ const isMobile = window.matchMedia("(pointer: coarse)").matches;
 
 type ProductResponse = {
   message: string;
-  product: { name: string; price: string; currency: string };
+  product: {
+    name: string;
+    price: string;
+    currency: string;
+    discountedPrice: string | null;
+    discountStartsAt: string | null;
+    discountEndsAt: string | null;
+    discountDetail: string | null;
+    discountActive: boolean;
+  };
 };
 
 function formatPrice(price: number): string {
@@ -21,6 +30,15 @@ function formatPrice(price: number): string {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
+}
+
+function formatDiscountEndsAt(value: string): string {
+  return new Intl.DateTimeFormat("tr-TR", {
+    day: "2-digit",
+    month: "long",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(value));
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -32,6 +50,18 @@ document.addEventListener("DOMContentLoaded", () => {
   ) as HTMLInputElement;
   const nameSpan = document.getElementById("product-name") as HTMLSpanElement;
   const priceSpan = document.getElementById("product-price") as HTMLSpanElement;
+  const originalPriceSpan = document.getElementById(
+    "product-original-price",
+  ) as HTMLSpanElement;
+  const discountBadge = document.getElementById(
+    "discount-badge",
+  ) as HTMLDivElement;
+  const discountDetailSpan = document.getElementById(
+    "discount-detail",
+  ) as HTMLSpanElement;
+  const discountEndsAtSpan = document.getElementById(
+    "discount-ends-at",
+  ) as HTMLSpanElement;
   const successAudio = document.getElementById(
     "success-audio",
   ) as HTMLAudioElement;
@@ -113,15 +143,54 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // `hidden` and `inline-flex` both set `display`, so leaving `inline-flex` on the element
+  // while toggling `hidden` is a coin flip depending on Tailwind's generated CSS order — remove
+  // the conflicting display utility on the branch that isn't active instead of just adding/
+  // removing `hidden` on its own.
+  function setDiscountBadgeVisible(visible: boolean) {
+    discountBadge.classList.toggle("hidden", !visible);
+    discountBadge.classList.toggle("inline-flex", visible);
+  }
+
+  function resetDiscountUI() {
+    originalPriceSpan.textContent = "";
+    originalPriceSpan.classList.add("hidden");
+    discountDetailSpan.textContent = "";
+    setDiscountBadgeVisible(false);
+    discountEndsAtSpan.textContent = "";
+    discountEndsAtSpan.classList.add("hidden");
+    priceSpan.classList.remove("text-red-600");
+  }
+
   function displayResult(
     response: ProductResponse["product"] | string | null,
     onDismiss?: () => void,
   ) {
     if (!response) return;
 
+    resetDiscountUI();
+
     if (typeof response === "object") {
       nameSpan.textContent = response.name;
-      priceSpan.textContent = `${formatPrice(Number(response.price))} ${response.currency}`;
+
+      if (response.discountActive && response.discountedPrice) {
+        priceSpan.textContent = `${formatPrice(Number(response.discountedPrice))} ${response.currency}`;
+        priceSpan.classList.add("text-red-600");
+
+        originalPriceSpan.textContent = `${formatPrice(Number(response.price))} ${response.currency}`;
+        originalPriceSpan.classList.remove("hidden");
+
+        setDiscountBadgeVisible(true);
+        discountDetailSpan.textContent = response.discountDetail ?? "İndirim";
+
+        if (response.discountEndsAt) {
+          discountEndsAtSpan.textContent = `İndirim bitişi: ${formatDiscountEndsAt(response.discountEndsAt)}`;
+          discountEndsAtSpan.classList.remove("hidden");
+        }
+      } else {
+        priceSpan.textContent = `${formatPrice(Number(response.price))} ${response.currency}`;
+      }
+
       successAudio.currentTime = 0;
       successAudio.play();
     } else {
@@ -145,6 +214,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const clearOnTransitionEnd = () => {
           nameSpan.textContent = "";
           priceSpan.textContent = "";
+          resetDiscountUI();
           productContent.removeEventListener(
             "transitionend",
             clearOnTransitionEnd,
