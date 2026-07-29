@@ -38,6 +38,7 @@ function formatDiscountEndsAt(value: string): string {
     month: "long",
     hour: "2-digit",
     minute: "2-digit",
+    year: 'numeric'
   }).format(new Date(value));
 }
 
@@ -62,6 +63,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const discountDetailSpan = document.getElementById(
     "discount-detail",
   ) as HTMLSpanElement;
+  const discountDetailAccordion = document.getElementById(
+    "discount-detail-accordion",
+  ) as HTMLDivElement;
+  const discountDetailFullPara = document.getElementById(
+    "discount-detail-full",
+  ) as HTMLParagraphElement;
   const discountEndsAtSpan = document.getElementById(
     "discount-ends-at",
   ) as HTMLSpanElement;
@@ -155,15 +162,33 @@ document.addEventListener("DOMContentLoaded", () => {
     discountBadge.classList.toggle("inline-flex", visible);
   }
 
+  function setDiscountDetailExpanded(expanded: boolean) {
+    discountDetailAccordion.style.gridTemplateRows = expanded ? "1fr" : "0fr";
+    discountDetailSpan.setAttribute("aria-expanded", String(expanded));
+  }
+
   function resetDiscountUI() {
     originalPriceSpan.textContent = "";
     originalPriceSpan.classList.add("hidden");
     discountDetailSpan.textContent = "";
+    discountDetailFullPara.textContent = "";
+    setDiscountDetailExpanded(false);
     setDiscountBadgeVisible(false);
     discountEndsAtSpan.textContent = "";
     discountEndsAtSpan.classList.add("hidden");
     priceSpan.classList.remove("text-red-600");
   }
+
+  discountDetailSpan.addEventListener("click", () => {
+    setDiscountDetailExpanded(
+      discountDetailAccordion.style.gridTemplateRows !== "1fr",
+    );
+  });
+  discountDetailSpan.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    e.preventDefault();
+    discountDetailSpan.click();
+  });
 
   function displayResult(
     response: ProductResponse["product"] | string | null,
@@ -184,7 +209,9 @@ document.addEventListener("DOMContentLoaded", () => {
         originalPriceSpan.classList.remove("hidden");
 
         setDiscountBadgeVisible(true);
-        discountDetailSpan.textContent = response.discountDetail ?? "İndirim";
+        const discountDetail = response.discountDetail ?? "İndirim";
+        discountDetailSpan.textContent = discountDetail;
+        discountDetailFullPara.textContent = discountDetail;
 
         if (response.discountEndsAt) {
           discountEndsAtSpan.textContent = `İndirim bitişi: ${formatDiscountEndsAt(response.discountEndsAt)}`;
